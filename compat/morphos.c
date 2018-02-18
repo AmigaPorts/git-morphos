@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <string.h>
 
 pid_t getpgid(pid_t pid)
 {
