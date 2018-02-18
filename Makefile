@@ -1915,6 +1915,9 @@ version.sp version.s version.o: EXTRA_CPPFLAGS = \
 	'-DGIT_BUILT_FROM_COMMIT="$(shell GIT_CEILING_DIRECTORIES=\"$(CURDIR)/..\" \
 		git rev-parse -q --verify HEAD || :)"'
 
+common-main.o: GIT-VERSION-FILE
+common-main.o: EXTRA_CPPFLAGS = '-DGIT_VERSION="$(GIT_VERSION)"'
+
 $(BUILT_INS): git$X
 	$(QUIET_BUILT_IN)$(RM) $@ && \
 	ln $< $@ 2>/dev/null || \

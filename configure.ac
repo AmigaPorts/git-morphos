@@ -582,7 +582,7 @@ GIT_STASH_FLAGS($CURLDIR)
 
 AC_CHECK_LIB([curl], [curl_global_init],
 [NO_CURL=],
-[NO_CURL=YesPlease])
+[NO_CURL=YesPlease], [-lssl -lcrypto -lz -L/gg/ssl/lib])
 
 GIT_UNSTASH_FLAGS($CURLDIR)
 
@@ -925,6 +925,7 @@ AC_RUN_IFELSE(
 		FILE *f = fopen(".", "r");
 		return f)]])],
 	[ac_cv_fread_reads_directories=no],
+	[ac_cv_fread_reads_directories=yes],
 	[ac_cv_fread_reads_directories=yes])
 ])
 if test $ac_cv_fread_reads_directories = yes; then
@@ -959,7 +960,8 @@ AC_RUN_IFELSE(
 		  if (snprintf(buf, 3, "%s", "12345") != 5
 		      || strcmp(buf, "12")) return 1]])],
 	[ac_cv_snprintf_returns_bogus=no],
-	[ac_cv_snprintf_returns_bogus=yes])
+	[ac_cv_snprintf_returns_bogus=yes],
+	[ac_cv_snprintf_returns_bogus=no])
 ])
 if test $ac_cv_snprintf_returns_bogus = yes; then
 	SNPRINTF_RETURNS_BOGUS=UnfortunatelyYes
@@ -1239,6 +1241,14 @@ else
 
   CFLAGS="$old_CFLAGS"
 fi
+
+if test $host == 'ppc-morphos' || `uname -s` == "MorphOS"; then
+	MORPHOS=YesPlease
+	PTHREAD_LIBS=-lpthread
+	NO_PTHREADS=
+	GIT_CONF_SUBST([MORPHOS])
+fi
+
 
 CFLAGS="$old_CFLAGS"
 

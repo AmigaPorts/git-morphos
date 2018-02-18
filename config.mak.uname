@@ -13,6 +13,11 @@ ifdef MSVC
 	uname_O := Windows
 endif
 
+ifdef MORPHOS
+	uname_S := MorphOS
+	uname_O := MorphOS
+endif
+
 # We choose to avoid "if .. else if .. else .. endif endif"
 # because maintaining the nesting to match is a pain.  If
 # we had "elif" things would have been much nicer...
@@ -583,4 +588,16 @@ ifeq ($(uname_S),QNX)
 	NO_R_TO_GCC_LINKER = YesPlease
 	NO_STRCASESTR = YesPlease
 	NO_STRLCPY = YesPlease
+endif
+ifeq ($(uname_S),MorphOS)
+	DEFAULT_EDITOR = ed
+	COMPAT_OBJS += compat/morphos.o
+	EXTLIBS += -lssl -lcrypto -L/gg/ssl/lib
+	NO_PREAD = YesPlease
+	NO_POSIX_GOODIES = YesPlease
+	NO_TCLTK = YesPlease
+	HOST_CPU = powerpc
+	PPC_SHA1 = YesPlease
+	SANE_TEXT_GREP=-a
+	NO_INSTALL_HARDLINKS = YesPlease
 endif
