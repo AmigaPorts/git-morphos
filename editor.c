@@ -38,7 +38,7 @@ int launch_editor(const char *path, struct strbuf *buffer, const char *const *en
 {
 	const char *editor = git_editor();
 #ifdef __MORPHOS__
-	const char rpath[PATH_MAX];
+	char rpath[PATH_MAX];
 
 	if (getenv("GIT_EDITOR_IXPATHS")) {
 		strncpy(rpath, real_path(path), sizeof(rpath));
