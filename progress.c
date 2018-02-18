@@ -74,8 +74,12 @@ static void clear_progress_signal(void)
 
 static int is_foreground_fd(int fd)
 {
+#ifdef __MORPHOS__
+	return 1;
+#else
 	int tpgrp = tcgetpgrp(fd);
 	return tpgrp < 0 || tpgrp == getpgid(0);
+#endif
 }
 
 static int display(struct progress *progress, uint64_t n, const char *done)

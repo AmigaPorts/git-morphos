@@ -2,6 +2,11 @@
 #include "exec_cmd.h"
 #include "attr.h"
 
+#ifdef __MORPHOS__
+unsigned long int __stack = 20971520; /* this bastard really loves stack space */
+__attribute__ ((section(".text"))) const char VTag[] = "\0$VER: git " GIT_VERSION;
+#endif
+
 /*
  * Many parts of Git have subprograms communicate via pipe, expect the
  * upstream of a pipe to die with SIGPIPE when the downstream of a
@@ -42,3 +47,4 @@ int main(int argc, const char **argv)
 
 	return cmd_main(argc, argv);
 }
+

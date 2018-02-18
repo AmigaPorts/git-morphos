@@ -745,7 +745,11 @@ fail_pipe:
 	 * never be released in the child process.  This means only
 	 * Async-Signal-Safe functions are permitted in the child.
 	 */
+#ifdef __MORPHOS__
+	cmd->pid = vfork();
+#else
 	cmd->pid = fork();
+#endif
 	failed_errno = errno;
 	if (!cmd->pid) {
 		int sig;
@@ -1214,7 +1218,28 @@ int start_async(struct async *async)
 	async->proc_in = proc_in;
 	async->proc_out = proc_out;
 	{
-		int err = pthread_create(&async->tid, NULL, run_thread, async);
+		int err;
+#ifdef __MORPHOS__
+		pthread_attr_t attr;
+
+		err = pthread_attr_init(&attr);
+
+		if (err) {
+			error_errno("cannot fill pthread_attr_t");
+			goto error;
+		}
+
+ 		err = pthread_attr_setstacksize(&attr, 31457280 * 2);
+
+ 		if (err) {
+ 			error_errno("cannot set stacksize in attr struct");
+ 			goto error;
+ 		}
+
+		err = pthread_create(&async->tid, &attr, run_thread, async);
+#else
+		err = pthread_create(&async->tid, NULL, run_thread, async);
+#endif
 		if (err) {
 			error_errno("cannot create thread");
 			goto error;

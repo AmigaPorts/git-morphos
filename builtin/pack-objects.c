@@ -2270,8 +2270,24 @@ static void ll_find_deltas(struct object_entry **list, unsigned list_size,
 			continue;
 		pthread_mutex_init(&p[i].mutex, NULL);
 		pthread_cond_init(&p[i].cond, NULL);
+
+#ifdef __MORPHOS__
+		{
+			pthread_attr_t attr;
+
+			if (pthread_attr_init(&attr))
+				die("cannot fill pthread_attr_t");
+
+			if (pthread_attr_setstacksize(&attr, 31457280 * 2))
+				die("cannot set stacksize in attr struct");
+
+			ret = pthread_create(&p[i].thread, &attr,
+								 threaded_find_deltas, &p[i]);
+		}
+#else
 		ret = pthread_create(&p[i].thread, NULL,
-				     threaded_find_deltas, &p[i]);
+							 threaded_find_deltas, &p[i]);
+#endif
 		if (ret)
 			die("unable to create thread: %s", strerror(ret));
 		active_threads++;

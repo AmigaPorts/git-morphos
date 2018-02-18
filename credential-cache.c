@@ -5,6 +5,10 @@
 #include "unix-socket.h"
 #include "run-command.h"
 
+#ifdef __MORPHOS__
+#include "compat/morphos.h"
+#endif
+
 #define FLAG_SPAWN 0x1
 #define FLAG_RELAY 0x2
 

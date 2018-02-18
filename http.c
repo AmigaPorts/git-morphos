@@ -67,7 +67,11 @@ static struct {
 static const char *ssl_key;
 #endif
 #if LIBCURL_VERSION_NUM >= 0x070908
+#ifdef __MORPHOS__
+static const char *ssl_capath = "/gg/ssl/certs";
+#else
 static const char *ssl_capath;
+#endif
 #endif
 #if LIBCURL_VERSION_NUM >= 0x071304
 static const char *curl_no_proxy;
