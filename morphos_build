@@ -1,0 +1,18 @@
+#!/bin/bash
+
+TMPDIR=`mktemp -d`
+
+trap "rm -rf \"$TMPDIR\"" exit
+
+
+make clean
+./configure --host=ppc-morphos --with-curl=/gg/usr --with-openssl=/gg/ssl --prefix=/gg/usr --with-expat=/gg/usr
+make MORPHOS=1 "DESTDIR=$TMPDIR" install -j4
+find "$TMPDIR" -name '*::*' | xargs rm -rf
+find "$TMPDIR" | xargs file | grep 'PowerPC' | awk '{print substr($1, 1, length($1)-1)}' | xargs ppc-morphos-strip --strip-unneeded --remove-section=.comment
+
+rm -rf "$TMPDIR/gg/usr/lib"
+
+tar -cJf ./git-morphos-2.16.2.tar.xz -C "$TMPDIR/gg" usr
+
+
