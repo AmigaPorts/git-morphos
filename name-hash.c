@@ -538,8 +538,24 @@ static void threaded_lazy_init_name_hash(
 		if (k_start > istate->cache_nr)
 			k_start = istate->cache_nr;
 		td_dir_t->k_end = k_start;
+
+#ifdef __MORPHOS__
+		{
+			pthread_attr_t attr;
+
+			if (pthread_attr_init(&attr))
+				die("cannot fill pthread_attr_t");
+
+			if (pthread_attr_setstacksize(&attr, 31457280 * 2))
+				die("cannot set stacksize in attr struct");
+
+			if (pthread_create(&td_dir_t->pthread, &attr, lazy_dir_thread_proc, td_dir_t))
+				die("unable to create lazy_dir_thread");
+		}
+#else
 		if (pthread_create(&td_dir_t->pthread, NULL, lazy_dir_thread_proc, td_dir_t))
 			die("unable to create lazy_dir_thread");
+#endif
 	}
 	for (t = 0; t < lazy_nr_dir_threads; t++) {
 		struct lazy_dir_thread_data *td_dir_t = td_dir + t;
@@ -559,9 +575,24 @@ static void threaded_lazy_init_name_hash(
 	 */
 	td_name->istate = istate;
 	td_name->lazy_entries = lazy_entries;
+
+#ifdef __MORPHOS__
+	{
+		pthread_attr_t attr;
+
+		if (pthread_attr_init(&attr))
+			die("cannot fill pthread_attr_t");
+
+		if (pthread_attr_setstacksize(&attr, 31457280 * 2))
+			die("cannot set stacksize in attr struct");
+
+		if (pthread_create(&td_name->pthread, &attr, lazy_name_thread_proc, td_name))
+			die("unable to create lazy_name_thread");
+	}
+#else
 	if (pthread_create(&td_name->pthread, NULL, lazy_name_thread_proc, td_name))
 		die("unable to create lazy_name_thread");
-
+#endif
 	lazy_update_dir_ref_counts(istate, lazy_entries);
 
 	if (pthread_join(td_name->pthread, NULL))

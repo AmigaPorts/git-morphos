@@ -15,6 +15,10 @@
 #include "gpg-interface.h"
 #include "cache.h"
 
+#ifdef __MORPHOS__
+#include "compat/morphos.h"
+#endif
+
 int option_parse_push_signed(const struct option *opt,
 			     const char *arg, int unset)
 {

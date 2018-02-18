@@ -100,8 +100,24 @@ static void preload_index(struct index_state *index,
 		p->offset = offset;
 		p->nr = work;
 		offset += work;
+
+#ifdef __MORPHOS__
+		{
+			pthread_attr_t attr;
+
+			if (pthread_attr_init(&attr))
+				die("cannot fill pthread_attr_t");
+
+			if (pthread_attr_setstacksize(&attr, 31457280 * 2))
+				die("cannot set stacksize in attr struct");
+
+			if (pthread_create(&p->pthread, &attr, preload_thread, p))
+				die("unable to create threaded lstat");
+    	}
+#else
 		if (pthread_create(&p->pthread, NULL, preload_thread, p))
 			die("unable to create threaded lstat");
+#endif
 	}
 	for (i = 0; i < threads; i++) {
 		struct thread_data *p = data+i;

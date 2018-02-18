@@ -37,12 +37,24 @@ const char *git_editor(void)
 int launch_editor(const char *path, struct strbuf *buffer, const char *const *env)
 {
 	const char *editor = git_editor();
+#ifdef __MORPHOS__
+	const char rpath[PATH_MAX];
 
+	if (getenv("GIT_EDITOR_IXPATHS")) {
+		strncpy(rpath, real_path(path), sizeof(rpath));
+	} else {
+		ix_to_ados(rpath, real_path(path));
+	}
+#endif
 	if (!editor)
 		return error("Terminal is dumb, but EDITOR unset");
 
 	if (strcmp(editor, ":")) {
+#ifdef __MORPHOS__
+		const char *args[] = { editor, rpath, NULL };
+#else
 		const char *args[] = { editor, real_path(path), NULL };
+#endif
 		struct child_process p = CHILD_PROCESS_INIT;
 		int ret, sig;
 		int print_waiting_for_editor = advice_waiting_for_editor && isatty(2);

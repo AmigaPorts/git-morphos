@@ -1213,8 +1213,24 @@ static void resolve_deltas(void)
 	if (nr_threads > 1 || getenv("GIT_FORCE_THREADS")) {
 		init_thread();
 		for (i = 0; i < nr_threads; i++) {
-			int ret = pthread_create(&thread_data[i].thread, NULL,
-						 threaded_second_pass, thread_data + i);
+			int ret;
+#ifdef __MORPHOS__
+			{
+				pthread_attr_t attr;
+
+				if (pthread_attr_init(&attr))
+					die("cannot fill pthread_attr_t");
+
+				if (pthread_attr_setstacksize(&attr, 31457280 * 2))
+					die("cannot set stacksize in attr struct");
+
+				ret = pthread_create(&thread_data[i].thread, &attr,
+									 threaded_second_pass, thread_data + i);
+			}
+#else
+			ret = pthread_create(&thread_data[i].thread, NULL,
+								 threaded_second_pass, thread_data + i);
+#endif
 			if (ret)
 				die(_("unable to create thread: %s"),
 				    strerror(ret));

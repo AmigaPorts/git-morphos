@@ -13,6 +13,9 @@
 #include "refs.h"
 #include "transport-internal.h"
 
+#ifdef __MORPHOS__
+#include "compat/morphos.h"
+#endif
 static int debug;
 
 struct helper_data {
@@ -1306,6 +1309,25 @@ static int tloop_spawnwait_tasks(struct bidirectional_transfer_state *s)
 	pthread_t ptg_thread;
 	int err;
 	int ret = 0;
+
+#ifdef __MORPHOS__
+	{
+		pthread_attr_t attr;
+
+		if (pthread_attr_init(&attr))
+			die("cannot fill pthread_attr_t");
+		if (pthread_attr_setstacksize(&attr, 31457280 * 2))
+			die("cannot set stacksize in attr struct");
+		err = pthread_create(&gtp_thread, &attr, udt_copy_task_routine,
+							 &s->gtp);
+		if (err)
+			die("Can't start thread for copying data: %s", strerror(err));
+		err = pthread_create(&ptg_thread, &attr, udt_copy_task_routine,
+							 &s->ptg);
+		if (err)
+			die("Can't start thread for copying data: %s", strerror(err));
+	}
+#else
 	err = pthread_create(&gtp_thread, NULL, udt_copy_task_routine,
 		&s->gtp);
 	if (err)
@@ -1314,6 +1336,7 @@ static int tloop_spawnwait_tasks(struct bidirectional_transfer_state *s)
 		&s->ptg);
 	if (err)
 		die("Can't start thread for copying data: %s", strerror(err));
+#endif
 
 	ret |= tloop_join(gtp_thread, "Git to program copy");
 	ret |= tloop_join(ptg_thread, "Program to git copy");

@@ -180,11 +180,15 @@
 #include <regex.h>
 #include <utime.h>
 #include <syslog.h>
+#ifdef __MORPHOS__
+#include "compat/poll/poll.h"
+#else
 #ifndef NO_SYS_POLL_H
 #include <sys/poll.h>
 #else
 #include <poll.h>
 #endif
+#endif /* __MORPHOS__ */
 #ifdef HAVE_BSD_SYSCTL
 #include <sys/sysctl.h>
 #endif
