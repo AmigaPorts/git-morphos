@@ -859,22 +859,6 @@ void datestamp(struct strbuf *out)
 	time(&now);
 
 	offset = tm_to_time_t(localtime(&now)) - now;
-#ifdef __MORPHOS__
-	{
-		/*
-		 * looks like ixemul is completly unaware of timezones...
-		 * also daylight saving time is not helping me to understand
-		 * this issue completly... so screw this, fast hack so user
-		 * can adjust it as (s)he want to.
-		 */
-		const char *env = getenv("GIT_TIMEZONE_OFFSET");
-
-		if (env) {
-			offset = atoi(env);
-			now -= offset;
-		}
-	}
-#endif
 	offset /= 60;
 
 	date_string(now, offset, out);

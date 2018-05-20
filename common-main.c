@@ -3,7 +3,6 @@
 #include "attr.h"
 
 #ifdef __MORPHOS__
-unsigned long int __stack = 20971520; /* this bastard really loves stack space */
 __attribute__ ((section(".text"))) const char VTag[] = "\0$VER: git " GIT_VERSION;
 #endif
 
