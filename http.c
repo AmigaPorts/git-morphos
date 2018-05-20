@@ -68,7 +68,7 @@ static const char *ssl_key;
 #endif
 #if LIBCURL_VERSION_NUM >= 0x070908
 #ifdef __MORPHOS__
-static const char *ssl_capath = "/gg/ssl/certs";
+static const char *ssl_capath = "/MOSSYS/Data/SSL";
 #else
 static const char *ssl_capath;
 #endif
